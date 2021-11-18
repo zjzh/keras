@@ -1848,7 +1848,12 @@ class BackendCrossEntropyLossesTest(tf.test.TestCase, parameterized.TestCase):
     logits = backend.constant([[8., 1., 1.]])
     p = backend.sigmoid(logits)
     p = tf.identity(tf.identity(p))
-    result = self.evaluate(backend.binary_weighted_focal_crossentropy(t, p))
+    result = self.evaluate(
+        backend.binary_focal_crossentropy(
+            target=t,
+            output=p,
+            apply_class_balancing=True,
+        ))
     self.assertArrayNear(result[0], [5.996, 0.006, 0.526], 1e-3)
 
   @combinations.generate(combinations.combine(mode=['graph', 'eager']))
@@ -1856,9 +1861,10 @@ class BackendCrossEntropyLossesTest(tf.test.TestCase, parameterized.TestCase):
     t = backend.constant([[0, 1, 0]])
     logits = backend.constant([[8., 1., 1.]])
     result = self.evaluate(
-        backend.binary_weighted_focal_crossentropy(
+        backend.binary_focal_crossentropy(
             target=t,
             output=logits,
+            apply_class_balancing=True,
             from_logits=True,
         ))
     self.assertArrayNear(result[0], [5.996, 0.006, 0.526], 1e-3)
